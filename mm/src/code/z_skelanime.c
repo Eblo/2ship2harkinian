@@ -652,7 +652,7 @@ void SkelAnime_GetFrameData(AnimationHeader* animation, float frame, float animF
     Vec3s* originalFrameTable = frameTable;
     int interpolatedFrameCount = isSkinnedSkeleton ? Ship_GetInterpolationFrameCount() : 1;
 
-    for (int j = 0; j < Ship_GetInterpolationFrameCount(); j++) {
+    for (int j = 0; j < interpolatedFrameCount; j++) {
         if (j > 0)
             frameTable = &interpFrameTable[limbCount * (j - 1)];
 

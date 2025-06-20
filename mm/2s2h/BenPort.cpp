@@ -934,11 +934,12 @@ void RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>
     // Process window events for resize, mouse, keyboard events
     wnd->HandleEvents();
 
-    gInterpolationIndex = 0;
+    auto intp = wnd->GetInterpreterWeak().lock();
+    intp->mInterpolationIndex = 0;
 
     for (const auto& m : mtx_replacements) {
         wnd->DrawAndRunGraphicsCommands(Commands, m);
-        gInterpolationIndex++;
+        intp->mInterpolationIndex++;
     }
 }
 
