@@ -2157,7 +2157,7 @@ void DrawBlahTab() {
 
     if (ImGui::InputText("Search Palettes", searchString, ARRAY_COUNT(searchString))) {
         paletteSearchResults =
-            ResourceMgr_ListFiles(("*" + std::string(searchString)).c_str(), &paletteSearchResultsCount);
+            ResourceMgr_ListFiles(("*" + std::string(searchString) + "*").c_str(), &paletteSearchResultsCount);
     }
 
     if (ImGui::BeginCombo("Active Palette", activePalette)) {
@@ -2175,8 +2175,8 @@ void DrawBlahTab() {
         // This data is not in RGBA format, we'll need to convert it
         auto data = (uint8_t*)res->GetRawPointer();
 
-        // Draw 16x16 grid of color pickers
-        for (int i = 0; i < 256; i++) {
+        // Draw 16x32 grid of color pickers
+        for (int i = 0; i < 512; i++) {
             if (i % 16 != 0) {
                 ImGui::SameLine();
             }
@@ -2191,12 +2191,19 @@ void DrawBlahTab() {
             float color[3] = { r / 31.0f, g / 31.0f, b / 31.0f };
 
             if (ImGui::ColorEdit3("##paletteColor", color, ImGuiColorEditFlags_NoInputs)) {
-                r = color[0] * 31;
-                g = color[1] * 31;
-                b = color[2] * 31;
-                col16 = (r << 11) | (g << 6) | (b << 1) | a;
-                data[i * 2] = col16 >> 8;
-                data[i * 2 + 1] = col16 & 0xff;
+                // Convenience hack to make the first element in a row edit all elements in that row
+                int j = i;
+                for (int j = i; j < i + 16; j++) {
+                    r = color[0] * 31;
+                    g = color[1] * 31;
+                    b = color[2] * 31;
+                    col16 = (r << 11) | (g << 6) | (b << 1) | a;
+                    data[j * 2] = col16 >> 8;
+                    data[j * 2 + 1] = col16 & 0xff;
+                    if (i % 16 != 0) {
+                        break;
+                    }
+                }
             }
 
             ImGui::PopID();
@@ -2206,7 +2213,7 @@ void DrawBlahTab() {
             gfx_texture_cache_clear();
         }
         if (ImGui::Button("Log Output")) {
-            for (int i = 0; i < 256; i++) {
+            for (int i = 0; i < 512; i++) {
                 uint16_t col16 = (data[i * 2] << 8) | data[i * 2 + 1];
                 uint8_t a = col16 & 1;
                 uint8_t r = col16 >> 11;
